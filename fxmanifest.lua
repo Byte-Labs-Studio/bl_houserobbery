@@ -4,7 +4,7 @@ game "gta5"
 lua54 'yes'
 
 author "Byte Labs"
-version '1.1.6'
+version '1.0.0'
 description 'Lua Boilerplate'
 
 
