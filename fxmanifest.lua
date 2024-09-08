@@ -8,7 +8,10 @@ version '1.0.0'
 description 'Lua Boilerplate'
 
 
-client_script 'client/init.lua'
+client_scripts {
+    '@bl_bridge/imports/client.lua',
+    'client/init.lua'
+}
 server_script 'server/init.lua'
 shared_script '@ox_lib/init.lua'
 
