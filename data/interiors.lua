@@ -1,55 +1,56 @@
 return {
     ["Low Apartment"] = {
         doorCoords = vec4(266.17, -1007.61, -101.01, 180.0),
-        iplPos = vec3(261.4586, -998.8196, -99.00863), -- no 'w', so using vec3
+        iplPos = vec3(261.4586, -998.8196, -99.00863),
         emptyChance = 15,                              -- chance that a spot will be empty
-        alarm = {
-            hash = `prop_ld_keypad_01`,
-            position = vec4(345.3378, -1011.1, -98.7, 90.0),
-            chance = 0,
+        -- alarm = {
+        --     model = `prop_ld_keypad_01`,
+        --     position = vec4(345.3378, -1011.1, -98.7, 90.0),
+        --     chance = 0,
+        -- },
+        electricityBox = {
+            model = `m23_1_prop_m31_controlpanel_02a`,
+            position = vector4(255.92, -998.28, -98.01, 92.08),
+            animation = {
+                dict = 'basegame',
+                name = 'work_base'
+            }
         },
         securityCamChance = 0, -- chance that a spot will have a security camera (meaning they need to wear a mask)
         objects = {
             {
-                hash = `prop_toaster_02`,
-                position = vec3(266.67, -995.32, -99.04), -- no 'w', so using vec3
-                rotation = vec3(0.0, 0.0, 0.0),           -- using vec3 for rotation
+                model = `prop_toaster_02`,
+                position = vec3(266.67, -995.32, -99.04),
                 item = "toaster"
             },
             {
-                hash = `prop_boombox_01`,
-                position = vec3(263.36, -994.69, -98.8), -- no 'w', so using vec3
-                rotation = vec3(0.0, 0.0, 0.0),
+                model = `prop_boombox_01`,
+                position = vec3(263.36, -994.69, -98.8),
                 item = "boombox"
             },
             {
-                hash = `prop_tv_03`,
-                position = vec3(256.73, -995.45, -98.86), -- no 'w', so using vec3
-                rotation = vec3(0.0, 0.0, 0.0),
+                model = `prop_tv_03`,
+                position = vec3(256.73, -995.45, -98.86),
                 item = "television1"
             },
             {
-                hash = `prop_vcr_01`,
-                position = vec3(256.67, -995.38, -99.31), -- no 'w', so using vec3
-                rotation = vec3(0.0, 0.0, 0.0),
+                model = `prop_vcr_01`,
+                position = vec3(256.67, -995.38, -99.31),
                 item = "vcr"
             },
             {
-                hash = `prop_tv_flat_03`,
-                position = vec3(262.69, -1001.85, -99.29), -- no 'w', so using vec3
-                rotation = vec3(0.0, 0.0, 0.0),
+                model = `prop_tv_flat_03`,
+                position = vec3(262.69, -1001.85, -99.29),
                 item = "television2"
             },
             {
-                hash = `prop_console_01`,
-                position = vec3(263.29, -1001.85, -99.3), -- no 'w', so using vec3
-                rotation = vec3(0.0, 0.0, 0.0),
+                model = `prop_console_01`,
+                position = vec3(263.29, -1001.85, -99.3),
                 item = "console"
             },
             {
-                hash = `prop_micro_02`,
-                position = vec3(266.47, -944.72, -98.9), -- no 'w', so using vec3
-                rotation = vec3(0.0, 0.0, 0.0),
+                model = `prop_micro_02`,
+                position = vec3(266.47, -944.72, -98.9),
                 item = "microwave"
             },
         },
@@ -57,7 +58,7 @@ return {
             {
                 name = 'Stove',
                 position = vec4(266, -996, -99.0, 0.0),
-                size = vec3(1.0, 1.0, 1.0), -- no 'w', so using vec3
+                size = vec3(1.0, 1.0, 1.0),
                 lootTypes = {
                     "misc",
                     "food"
@@ -66,7 +67,7 @@ return {
             {
                 name = 'Fridge',
                 position = vec4(266.26, -997.55, -99.0, 0.0),
-                size = vec3(1.0, 1.0, 2.0), -- no 'w', so using vec3
+                size = vec3(1.0, 1.0, 2.0),
                 lootTypes = {
                     "misc",
                     "food"
@@ -75,7 +76,7 @@ return {
             {
                 name = 'Cabinets',
                 position = vec4(263.84, -995.09, -99.0, 0.0),
-                size = vec3(2.0, 1.0, 2.0), -- no 'w', so using vec3
+                size = vec3(2.0, 1.0, 2.0),
                 lootTypes = {
                     "misc",
                     "food",
@@ -85,7 +86,7 @@ return {
             {
                 name = 'Under Bed',
                 position = vec4(262.55, -1004.15, -99.65, 0.0),
-                size = vec3(2.0, 1.5, 0.7), -- no 'w', so using vec3
+                size = vec3(2.0, 1.5, 0.7),
                 lootTypes = {
                     "misc",
                     "food",
@@ -97,7 +98,7 @@ return {
             {
                 name = 'TV Stand',
                 position = vec4(256.75, -995.35, -99.15, 0.0),
-                size = vec3(1.1, 0.4, 1.2), -- no 'w', so using vec3
+                size = vec3(1.1, 0.4, 1.2),
                 lootTypes = {
                     "misc",
                     "food",
@@ -109,7 +110,7 @@ return {
             {
                 name = 'Bedroom Dresser',
                 position = vec4(261.4, -1002.05, -99.45, 0.0),
-                size = vec3(1.0, 0.35, 0.9), -- no 'w', so using vec3
+                size = vec3(1.0, 0.35, 0.9),
                 lootTypes = {
                     "misc",
                     "food",
@@ -121,7 +122,7 @@ return {
             {
                 name = 'Bedroom Closet',
                 position = vec4(259.75, -1004.5, -98.8, 0.0),
-                size = vec3(1.25, 0.4, 1.95), -- no 'w', so using vec3
+                size = vec3(1.25, 0.4, 1.95),
                 lootTypes = {
                     "misc",
                     "food",
@@ -139,7 +140,7 @@ return {
         emptyChance = 10, -- chance that a spot will be empty
 
         alarm = {
-            hash = `prop_ld_keypad_01`,
+            model = `prop_ld_keypad_01`,
             position = vector4(345.3378, -1011.1, -98.7, 90.0),
             chance = 0,
         },
@@ -148,43 +149,43 @@ return {
 
         objects = {
             {
-                hash = `v_res_m_lampstand`,
+                model = `v_res_m_lampstand`,
                 position = vector3(344.08, -993.74, -100.21),
                 rotation = vector3(0.0, 0.0, 0.0),
                 item = "floor_lamp"
             },
             {
-                hash = `prop_coffee_mac_02`,
+                model = `prop_coffee_mac_02`,
                 position = vector3(342.77, -1004.03, -98.98),
                 rotation = vector3(0.0, 0.0, 180.0),
                 item = "coffee_machine",
             },
             {
-                hash = `prop_toaster_01`,
+                model = `prop_toaster_01`,
                 position = vector3(341.76, -1004.02, -99.09),
                 rotation = vector3(0.0, 0.0, 67.5),
                 item = "toaster",
             },
             {
-                hash = `prop_wok`,
+                model = `prop_wok`,
                 position = vector3(344.83, -1003.0, -99.09),
                 rotation = vector3(0.0, 0.0, 47.5),
                 item = "wok",
             },
             {
-                hash = `prop_micro_01`,
+                model = `prop_micro_01`,
                 position = vector3(344.85, -1002.04, -99.16),
                 rotation = vector3(0.0, 0.0, -85.0),
                 item = "microwave",
             },
             {
-                hash = `v_res_m_lampstand`,
+                model = `v_res_m_lampstand`,
                 position = vector3(352.36, -999.93, -100.21),
                 rotation = vector3(0.0, 0.0, 0.0),
                 item = "floor_lamp",
             },
             {
-                hash = `prop_plant_int_03a`,
+                model = `prop_plant_int_03a`,
                 position = vector3(352.69, -993.52, -100.21),
                 rotation = vector3(0.0, 0.0, 17.0),
                 item = "tall_plant_vase",
@@ -401,7 +402,7 @@ return {
         emptyChance = 10, -- chance that a spot will be empty
 
         alarm = {
-            hash = `prop_ld_keypad_01`,
+            model = `prop_ld_keypad_01`,
             position = vec4(-758.8531494140625, 616.40771484375, 144.4819793701172, -144.7908172607422),
             chance = 0,
         },
@@ -410,55 +411,55 @@ return {
 
         objects = {
             {
-                hash = `prop_micro_02`,
+                model = `prop_micro_02`,
                 position = vec3(-760.26, 608.83, 144.24),
                 rotation = vec3(0.0, 0.0, 0.0),
                 item = "microwave"
             },
             {
-                hash = `prop_toaster_01`,
+                model = `prop_toaster_01`,
                 position = vec3(-757.09, 610.99, 144.23),
                 rotation = vec3(0.0, 0.0, 0.0),
                 item = "toaster"
             },
             {
-                hash = `prop_bong_01`,
+                model = `prop_bong_01`,
                 position = vec3(-772.62, 609.18, 143.2),
                 rotation = vec3(0.0, 0.0, 0.0),
                 item = "bong"
             },
             {
-                hash = `prop_t_telescope_01b`,
+                model = `prop_t_telescope_01b`,
                 position = vec3(-744.76, 604.73, 143.33),
                 rotation = vec3(0.0, 0.0, 0.0),
                 item = "telescope"
             },
             {
-                hash = `prop_mp3_dock`,
+                model = `prop_mp3_dock`,
                 position = vec3(-772.98, 614.06, 140.29),
                 rotation = vec3(0.0, 0.0, 0.0),
                 item = "boombox"
             },
             {
-                hash = `prop_printer_01`,
+                model = `prop_printer_01`,
                 position = vec3(-767.06, 619.23, 136.26),
                 rotation = vec3(0.0, 0.0, 0.0),
                 item = "printer"
             },
             {
-                hash = `prop_laptop_01a`,
+                model = `prop_laptop_01a`,
                 position = vec3(-765.27, 613.56, 136.25),
                 rotation = vec3(0.0, 0.0, 0.0),
                 item = "laptop"
             },
             {
-                hash = `v_res_mm_audio`,
+                model = `v_res_mm_audio`,
                 position = vec3(-760.29, 614.13, 136.25),
                 rotation = vec3(0.0, 0.0, 0.0),
                 item = "radio"
             },
             {
-                hash = `prop_npc_phone`,
+                model = `prop_npc_phone`,
                 position = vec3(-772.44, 614.24, 143.77),
                 rotation = vec3(0.0, 0.0, 0.0),
                 item = "phone"
