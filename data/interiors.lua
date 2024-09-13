@@ -20,8 +20,12 @@ return {
         objects = {
             {
                 model = `prop_toaster_02`,
-                position = vec3(266.67, -995.32, -99.04),
-                item = "toaster"
+                position = vec3(266.37, -995.32, -99.04),
+                item = "toaster",
+                anim = {
+                    dict = 'missmechanic',
+                    name = 'work2_base'
+                }
             },
             {
                 model = `prop_boombox_01`,
@@ -30,12 +34,12 @@ return {
             },
             {
                 model = `prop_tv_03`,
-                position = vec3(256.73, -995.45, -98.86),
+                position = vec4(256.73, -995.45, -98.86, 45.74),
                 item = "television1"
             },
             {
                 model = `prop_vcr_01`,
-                position = vec3(256.67, -995.38, -99.31),
+                position = vec4(256.67, -995.38, -99.31, 45.74),
                 item = "vcr"
             },
             {
