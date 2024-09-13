@@ -28,6 +28,13 @@ function House:playerEnter(source, initial)
 
     if initial then
         TriggerClientEvent('bl_houserobbery:client:registerHouse', -1, id)
+        if config.resetCooldown > 0 then
+            SetTimeout(config.resetCooldown, function()
+                self.cooldown = false
+                cooldownHouses[self.label] = nil
+                TriggerClientEvent('bl_houserobbery:client:resetHouse', -1, id)
+            end)
+        end
     end
 end
 

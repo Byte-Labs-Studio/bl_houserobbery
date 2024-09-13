@@ -211,6 +211,10 @@ RegisterNetEvent('bl_houserobbery:client:removeObject', function(objectIndex)
 end)
 
 RegisterNetEvent('bl_houserobbery:client:registerHouse', function(houseId)
+RegisterNetEvent('bl_houserobbery:client:resetHouse', function(id)
+    housePoints[id]:removeSprite()
+    housePoints[id] = nil
+end)
     housePoints[houseId] = exports.bl_sprites:sprite({
         coords = currentHouse.coords,
         distance = 3.0,
