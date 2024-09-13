@@ -23,27 +23,12 @@ lib.callback.register('bl_houserobbery:client:checkNearbyHouse', function(id)
         end
     end
 
-    if house then
-        currentHouse.id = id
-        currentHouse.isMlo = house.isMlo
-        currentHouse.coords = house.coords
-    end
-
     return house
 end)
 
 local function exitHouse()
     local coords = currentHouse.coords
     local isInside = coords and LocalPlayer.state.inHouse
-    if isInside then
-        DoScreenFadeOut(250)
-        Wait(250)
-
-        SetEntityCoords(cache.ped, coords.x, coords.y, coords.z, false, false, false, false)
-
-        LocalPlayer.state:set('inHouse', false, true)
-    end
-
     local exitTarget = currentHouse.exitTarget
     if exitTarget then
         target.removeZone(exitTarget)
@@ -73,8 +58,14 @@ local function exitHouse()
         sprites = {},
     }
 
-
     if isInside then
+        DoScreenFadeOut(250)
+        Wait(250)
+
+        SetEntityCoords(cache.ped, coords.x, coords.y, coords.z, false, false, false, false)
+
+        LocalPlayer.state:set('inHouse', false, true)
+
         Wait(250)
         DoScreenFadeIn(250)
     end
@@ -184,12 +175,15 @@ function utils.takeObjectControl:onReleased()
     end
     local objectIndex = closestSprite.data
 
-    local anim = require 'data.interiors'[currentHouse.interiorName].objects[objectIndex].anim
+    local anim = require 'data.interiors'[currentHouse.interiorName].objects[objectIndex].anim or {
+        dict = 'missmechanic',
+        name = 'work2_base'
+    }
 
     if anim then
         utils.playAnim({
-            dict = object.dict,
-            name = object.name,
+            dict = anim.dict,
+            name = anim.name,
             duration = 5000
         })
     end
@@ -210,17 +204,23 @@ RegisterNetEvent('bl_houserobbery:client:removeObject', function(objectIndex)
     currentHouse.sprites[objectIndex] = nil
 end)
 
-RegisterNetEvent('bl_houserobbery:client:registerHouse', function(houseId)
 RegisterNetEvent('bl_houserobbery:client:resetHouse', function(id)
     housePoints[id]:removeSprite()
     housePoints[id] = nil
 end)
+
+RegisterNetEvent('bl_houserobbery:client:registerHouse', function(data)
+    local houseId = data.id
     housePoints[houseId] = exports.bl_sprites:sprite({
-        coords = currentHouse.coords,
+        coords = data.coords,
         distance = 3.0,
         shape = 'circle',
         scale = 0.03,
         key = 'E',
+        onEnter = function()
+            currentHouse.id = houseId
+            currentHouse.coords = data.coords
+        end,
         nearby = function()
             if not IsControlJustReleased(2, 38) then return end
 
@@ -231,7 +231,9 @@ end)
 
 RegisterNetEvent('bl_houserobbery:client:enterHouse', function(data)
     local id, interiorName, blackOut = data.id, data.interiorName, data.blackOut
-    if currentHouse.id ~= id then return end
+
+    local isValid = lib.callback.await('bl_houserobbery:client:validPlayer', nil, id)
+    if not isValid then return end
 
     local interior = interiorName and require 'data.interiors'[interiorName]
     if not interior then return end
@@ -239,17 +241,22 @@ RegisterNetEvent('bl_houserobbery:client:enterHouse', function(data)
     local ped = cache.ped
     local doorCoords = interior.doorCoords
 
+    currentHouse.interiorName = interiorName
+    currentHouse.id = id
+    currentHouse.coords = data.coords
+
+    LocalPlayer.state:set('inHouse', true, true)
+
     DoScreenFadeOut(250)
     Wait(250)
 
-    LocalPlayer.state:set('inHouse', true, true)
     SetEntityCoords(ped, doorCoords.x, doorCoords.y, doorCoords.z, false, false, false, false)
     SetEntityHeading(ped, doorCoords.w)
 
     FreezeEntityPosition(ped, true)
     local interiorId = GetInteriorAtCoords(doorCoords.x, doorCoords.y, doorCoords.z)
     currentHouse.interiorId = interiorId
-    currentHouse.interiorName = interiorName
+    
     lib.waitFor(function()
         if IsInteriorReady(interiorId) then
             return true

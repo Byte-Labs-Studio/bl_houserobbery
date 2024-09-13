@@ -1,14 +1,18 @@
 local House = lib.class('House')
 local activeHouses = {}
+local cooldownHouses = {}
+local config = require 'data.config'
 
 require 'server.modules.housing'
-function House:constructor(id, interiorId, coords)
+
+function House:constructor(id, interiorId, houseData)
     local private = self.private
     self.id = id
     self.blackOut = false
     private.insidePlayers = {}
     private.interior = interiorId
-    self.coords = coords
+    self.coords = houseData.coords
+    self.label = houseData.label
 
     activeHouses[id] = self
 end
@@ -23,11 +27,18 @@ function House:playerEnter(source, initial)
     TriggerClientEvent("bl_houserobbery:client:enterHouse", source, {
         id = id,
         interiorName = private.interior,
-        blackOut = self.blackOut
+        blackOut = self.blackOut,
+        coords = self.coords
     })
 
     if initial then
-        TriggerClientEvent('bl_houserobbery:client:registerHouse', -1, id)
+        self.cooldown = true
+        cooldownHouses[self.label] = id
+        TriggerClientEvent('bl_houserobbery:client:registerHouse', -1, {
+            id = id,
+            coords = self.coords
+        })
+
         if config.resetCooldown > 0 then
             SetTimeout(config.resetCooldown, function()
                 self.cooldown = false
@@ -64,6 +75,11 @@ function House:playerExit(source)
     SetPlayerRoutingBucket(source, 1)
     Player(source).state.instance = 1
 end
+
+lib.callback.register('bl_houserobbery:client:validPlayer', function(source, id)
+    local activeHouse = activeHouses[id]
+    return activeHouse and activeHouse:isPlayerInside(source)
+end)
 
 RegisterNetEvent('bl_houserobbery:server:exitHouse', function(houseid)
     local src = source
@@ -113,9 +129,15 @@ RegisterCommand('enterhouse', function(src)
     local houseData = lib.callback.await('bl_houserobbery:client:checkNearbyHouse', src, id)
     if not houseData then return end
 
-    local config = require 'data.config'
+    local isHouseExist = cooldownHouses[houseData.label]
+    local houseClass = isHouseExist and activeHouses[isHouseExist]
+    if houseClass then
+        houseClass:playerEnter(src)
+        return
+    end
+
     local interiorId = houseData.interior or config.defaultInterior
-    local house = House:new(id, interiorId, houseData.coords)
+    local house = House:new(id, interiorId, houseData)
 
     house:playerEnter(src, true)
 end, false)
