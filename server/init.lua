@@ -61,10 +61,19 @@ function House:takeObject(source, objectIndex)
     local player = Framework.core.GetPlayer(source)
     if not player then return end
 
+    print(object.item)
     player.addItem(object.item, 1)
 
     for src in pairs(private.insidePlayers) do
         TriggerClientEvent('bl_houserobbery:client:removeObject', src, objectIndex)
+    end
+end
+
+function House:syncBlackOut()
+    local private = self.private
+
+    for src in pairs(private.insidePlayers) do
+        TriggerClientEvent('bl_houserobbery:client:syncBlackOut', src)
     end
 end
 
@@ -118,6 +127,10 @@ RegisterNetEvent('bl_houserobbery:server:updateHouse', function(data)
     if not activeHouse or not activeHouse:isPlayerInside(src) then return end
 
     activeHouse[type] = true
+    if type == 'blackOut' then
+        activeHouse:syncBlackOut()
+    end
+    
 end)
 
 RegisterCommand('enterhouse', function(src)

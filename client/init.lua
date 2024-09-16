@@ -35,16 +35,13 @@ local function exitHouse()
     end
 
     for _, entityId in ipairs(currentHouse.objects) do
+        target.removeLocalEntity(entityId)
         DeleteEntity(entityId)
     end
 
     for _, sprite in ipairs(currentHouse.sprites) do
         DeleteEntity(sprite.entity)
         sprite:removeSprite()
-    end
-
-    for _, targetData in ipairs(currentHouse.targets) do
-        target.removeLocalEntity(targetData)
     end
 
     TriggerServerEvent('bl_houserobbery:server:exitHouse', currentHouse.id)
@@ -90,6 +87,8 @@ end
 
 local function blackOutInterior()
     local interiorId = currentHouse.interiorId
+    if not interiorId then return end
+
     local blackOutHash = `BlackOut`
     for i = 1, GetInteriorRoomCount(interiorId) do
         SetInteriorRoomTimecycle(interiorId, i, blackOutHash)
@@ -98,7 +97,25 @@ local function blackOutInterior()
     RefreshInterior(interiorId)
 end
 
+local function findModel(model)
+    for k,v in ipairs(currentHouse.objects) do
+        if GetEntityModel(v) == model then
+            return v
+        end
+    end
+end
+
+RegisterNetEvent('bl_houserobbery:client:syncBlackOut', function()
+    blackOutInterior()
+
+    local object = findModel(currentHouse.electricityBoxModel)
+    if not object then return end
+
+    target.removeLocalEntity(object)
+end)
+
 local function handleBlackOut(electricityBox, blackOut)
+    currentHouse.electricityBoxModel = electricityBox.model
     local object = utils.spawnLocalObject(electricityBox.model, electricityBox.position)
     currentHouse.objects[#currentHouse.objects + 1] = object
     FreezeEntityPosition(object, true)
@@ -106,7 +123,7 @@ local function handleBlackOut(electricityBox, blackOut)
     if blackOut then
         blackOutInterior()
     else
-        currentHouse.targets[#currentHouse.targets + 1] = target.addLocalEntity({
+        target.addLocalEntity({
             entity = object,
             options = {
                 {
@@ -115,14 +132,11 @@ local function handleBlackOut(electricityBox, blackOut)
                     distance = 1.0,
                     onSelect = function()
                         local ped = cache.ped
-
                         TaskTurnPedToFaceEntity(ped, object, -1)
                         Wait(1000)
                         TaskStartScenarioInPlace(ped, 'WORLD_HUMAN_HAMMERING', 0, true)
                         Wait(2000)
                         ClearPedTasks(ped)
-                        blackOutInterior()
-                        target.removeLocalEntity(object)
                         TriggerServerEvent('bl_houserobbery:server:updateHouse', {
                             type = 'blackOut',
                             id = currentHouse.id
@@ -133,7 +147,6 @@ local function handleBlackOut(electricityBox, blackOut)
         })
     end
 end
-
 
 local function spawnObjects(interior, blackOut)
     local electricityBox = interior.electricityBox
