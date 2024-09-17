@@ -11,6 +11,7 @@ function House:constructor(id, interiorId, houseData)
     self.blackOut = false
     private.insidePlayers = {}
     private.interior = interiorId
+    private.skipObjects = {}
     self.coords = houseData.coords
     self.label = houseData.label
 
@@ -28,7 +29,8 @@ function House:playerEnter(source, initial)
         id = id,
         interiorName = private.interior,
         blackOut = self.blackOut,
-        coords = self.coords
+        coords = self.coords,
+        skipObjects = private.skipObjects
     })
 
     if initial then
@@ -61,7 +63,7 @@ function House:takeObject(source, objectIndex)
     local player = Framework.core.GetPlayer(source)
     if not player then return end
 
-    print(object.item)
+    private.skipObjects[tostring(objectIndex)] = true
     player.addItem(object.item, 1)
 
     for src in pairs(private.insidePlayers) do
@@ -73,7 +75,7 @@ function House:syncBlackOut()
     local private = self.private
 
     for src in pairs(private.insidePlayers) do
-        TriggerClientEvent('bl_houserobbery:client:syncBlackOut', src)
+        TriggerClientEvent('bl_houserobbery:client:syncBlackOut', src, private.skipObjects)
     end
 end
 

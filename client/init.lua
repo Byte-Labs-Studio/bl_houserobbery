@@ -1,5 +1,4 @@
 local utils = require 'client.utils'
-local config = require 'data.config'
 local housePoints = {}
 local target = Framework.target
 local currentHouse = {
@@ -26,6 +25,14 @@ lib.callback.register('bl_houserobbery:client:checkNearbyHouse', function(id)
     return house
 end)
 
+local function removeSprites()
+    for _, sprite in ipairs(currentHouse.sprites) do
+        SetEntityAsMissionEntity(sprite.entity, true, true)
+        DeleteEntity(sprite.entity)
+        sprite:removeSprite()
+    end
+end
+
 local function exitHouse()
     local coords = currentHouse.coords
     local isInside = coords and LocalPlayer.state.inHouse
@@ -36,13 +43,11 @@ local function exitHouse()
 
     for _, entityId in ipairs(currentHouse.objects) do
         target.removeLocalEntity(entityId)
-        DeleteEntity(entityId)
+        SetEntityAsMissionEntity(entityId, true, true)
+        DeleteObject(entityId)
     end
 
-    for _, sprite in ipairs(currentHouse.sprites) do
-        DeleteEntity(sprite.entity)
-        sprite:removeSprite()
-    end
+    removeSprites()
 
     TriggerServerEvent('bl_houserobbery:server:exitHouse', currentHouse.id)
 
@@ -95,6 +100,11 @@ local function blackOutInterior()
     end
 
     RefreshInterior(interiorId)
+    lib.waitFor(function()
+        if IsInteriorReady(interiorId) then
+            return true
+        end
+    end, 'Interior load timeout', 10000)
 end
 
 local function findModel(model)
@@ -105,9 +115,36 @@ local function findModel(model)
     end
 end
 
-RegisterNetEvent('bl_houserobbery:client:syncBlackOut', function()
+local function refreshObjects(objects, skip)
+    local bl_sprites = exports.bl_sprites
+    if objects then
+        for i = 1, #objects do
+            local object = objects[i]
+            local objectId = GetClosestObjectOfType(object.position.x, object.position.y, object.position.z, 3.0, object.model, false, false, false)
+
+            if skip[tostring(i)] and objectId then
+                SetEntityAsMissionEntity(objectId, true, true)
+                DeleteObject(objectId)
+            else
+                objectId = objectId or utils.spawnLocalObject(object.model, object.position)
+                currentHouse.sprites[i] = bl_sprites:spriteOnEntity({
+                    entity = objectId,
+                    data = i,
+                    distance = 1.5,
+                    shape = 'circle',
+                    scale = 0.025,
+                    key = 'E',
+                })
+            end
+        end
+    end
+end
+
+RegisterNetEvent('bl_houserobbery:client:syncBlackOut', function(skipObjects)
+    removeSprites()
     blackOutInterior()
 
+    refreshObjects(currentHouse.interiorObjects, skipObjects)
     local object = findModel(currentHouse.electricityBoxModel)
     if not object then return end
 
@@ -148,7 +185,7 @@ local function handleBlackOut(electricityBox, blackOut)
     end
 end
 
-local function spawnObjects(interior, blackOut)
+local function spawnObjects(interior, blackOut, skip)
     local electricityBox = interior.electricityBox
     if electricityBox then
         handleBlackOut(electricityBox, blackOut)
@@ -161,22 +198,7 @@ local function spawnObjects(interior, blackOut)
         FreezeEntityPosition(object, true)
     end
 
-    local bl_sprites = exports.bl_sprites
-    local objects = interior.objects
-    if objects then
-        for i = 1, #objects do
-            local object = objects[i]
-            local objectId = GetClosestObjectOfType(object.position.x, object.position.y, object.position.z, 3.0, object.model, false, false, false) or utils.spawnLocalObject(object.model, object.position)
-            currentHouse.sprites[i] = bl_sprites:spriteOnEntity({
-                entity = objectId,
-                data = i,
-                distance = 1.5,
-                shape = 'circle',
-                scale = 0.025,
-                key = 'E',
-            })
-        end
-    end
+    refreshObjects(interior.objects, skip)
 end
 
 function utils.takeObjectControl:onReleased()
@@ -243,7 +265,7 @@ RegisterNetEvent('bl_houserobbery:client:registerHouse', function(data)
 end)
 
 RegisterNetEvent('bl_houserobbery:client:enterHouse', function(data)
-    local id, interiorName, blackOut = data.id, data.interiorName, data.blackOut
+    local id, interiorName, blackOut, skipObjects = data.id, data.interiorName, data.blackOut, data.skipObjects
 
     local isValid = lib.callback.await('bl_houserobbery:client:validPlayer', nil, id)
     if not isValid then return end
@@ -254,6 +276,7 @@ RegisterNetEvent('bl_houserobbery:client:enterHouse', function(data)
     local ped = cache.ped
     local doorCoords = interior.doorCoords
 
+    currentHouse.interiorObjects = interior.objects
     currentHouse.interiorName = interiorName
     currentHouse.id = id
     currentHouse.coords = data.coords
@@ -277,7 +300,7 @@ RegisterNetEvent('bl_houserobbery:client:enterHouse', function(data)
     end, 'Interior load timeout', 10000)
     FreezeEntityPosition(ped, false)
 
-    spawnObjects(interior, blackOut)
+    spawnObjects(interior, blackOut, skipObjects)
     registerExit(doorCoords)
     Wait(500)
     DoScreenFadeIn(250)
