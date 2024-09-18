@@ -89,7 +89,11 @@ end
 
 lib.callback.register('bl_houserobbery:client:validPlayer', function(source, id)
     local activeHouse = activeHouses[id]
-    return activeHouse and activeHouse:isPlayerInside(source)
+    local isValid = activeHouse and activeHouse:isPlayerInside(source)
+    if not isValid then
+        lib.print.info(('Player %s tried to enter house with no access, maybe a hacker?'):format(GetPlayerName(source)))
+    end
+    return isValid
 end)
 
 RegisterNetEvent('bl_houserobbery:server:exitHouse', function(houseid)
@@ -132,7 +136,6 @@ RegisterNetEvent('bl_houserobbery:server:updateHouse', function(data)
     if type == 'blackOut' then
         activeHouse:syncBlackOut()
     end
-    
 end)
 
 RegisterCommand('enterhouse', function(src)

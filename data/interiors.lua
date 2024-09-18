@@ -8,6 +8,7 @@ return {
         --     position = vec4(345.3378, -1011.1, -98.7, 90.0),
         --     chance = 0,
         -- },
+        ghost = vector4(263.63, -996.22, -99.01, 186.71),
         electricityBox = {
             model = `m23_1_prop_m31_controlpanel_02a`,
             position = vector4(255.92, -998.28, -98.01, 92.08),

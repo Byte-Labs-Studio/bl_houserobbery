@@ -31,6 +31,7 @@ end
 
 utils.takeObjectControl = lib.addKeybind({
     name = 'housing_robbery_thief',
+    disabled = true,
     description = 'press E to take housing objects',
     defaultKey = 'E',
 })
