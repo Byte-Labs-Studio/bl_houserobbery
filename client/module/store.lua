@@ -7,6 +7,7 @@ local currentHouse = {
     ptfx = {},
     targets = {},
     sprites = {},
+    peds = {},
 }
 
 local function addSprite(entity)
@@ -63,6 +64,11 @@ local function resetCurrentHouse()
         target.removeLocalEntity(entityId)
         SetEntityAsMissionEntity(entityId, true, true)
         DeleteObject(entityId)
+    end
+
+    for _, entityId in ipairs(currentHouse.peds) do
+        SetEntityAsMissionEntity(entityId, true, true)
+        DeletePed(entityId)
     end
 
     removeSprites()

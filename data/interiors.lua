@@ -2,13 +2,24 @@ return {
     ["Low Apartment"] = {
         doorCoords = vec4(266.17, -1007.61, -101.01, 180.0),
         iplPos = vec3(261.4586, -998.8196, -99.00863),
-        emptyChance = 15,                              -- chance that a spot will be empty
-        -- alarm = {
-        --     model = `prop_ld_keypad_01`,
-        --     position = vec4(345.3378, -1011.1, -98.7, 90.0),
-        --     chance = 0,
-        -- },
+        alarm = {
+            model = `prop_ld_keypad_01`,
+            position = vec4(345.3378, -1011.1, -98.7, 90.0),
+            chance = 0,
+        },
         ghost = vector4(263.63, -996.22, -99.01, 186.71),
+        peds = {
+            {
+                chance = 100,
+                model = `a_f_m_tramp_01`,
+                -- weapon = ``,
+                coords = vector4(260.38, -996.58, -99.01, 100.07),
+                anim = {
+                    dict = 'switch@franklin@stripclub',
+                    name = '002113_02_fras_15_stripclub_idle'
+                }
+            }
+        },
         electricityBox = {
             model = `m23_1_prop_m31_controlpanel_02a`,
             position = vector4(255.92, -998.28, -98.01, 92.08),
@@ -142,8 +153,6 @@ return {
     ["Mid Apartment"] = {
         doorCoords = vector4(346.51, -1013.24, -99.2, 354.65),
         iplPos = vector3(347.2686, -999.2955, -99.19622),
-        emptyChance = 10, -- chance that a spot will be empty
-
         alarm = {
             model = `prop_ld_keypad_01`,
             position = vector4(345.3378, -1011.1, -98.7, 90.0),
@@ -404,8 +413,6 @@ return {
     ["High Apartment"] = {
         doorCoords = vec4(-758.22, 619.05, 144.14, 105.59),
         iplPos = vec3(-763.107, 615.906, 144.1401),
-        emptyChance = 10, -- chance that a spot will be empty
-
         alarm = {
             model = `prop_ld_keypad_01`,
             position = vec4(-758.8531494140625, 616.40771484375, 144.4819793701172, -144.7908172607422),
