@@ -1,11 +1,11 @@
 local store = require 'client.module.store'
 local currentHouse = store.currentHouse
+local utils = require 'client.utils'
 
 return function(coords)
     local ghostData = require 'data.ghosts'
 
-    local model = lib.requestModel(ghostData.models[math.random(#ghostData.models)])
-    local ghost = CreateObject(model, coords.x, coords.y, coords.z - 0.85, false, false, false)
+    local ghost = utils.spawnLocalObject(ghostData.models[math.random(#ghostData.models)], coords)
     currentHouse.objects[#currentHouse.objects + 1] = ghost
     SetEntityCollision(ghost, false, false)
     SetEntityHeading(ghost, coords.w-180.0)
@@ -23,6 +23,4 @@ return function(coords)
     currentHouse.ptfx[#currentHouse.ptfx + 1] = ptfxId
     SetParticleFxLoopedEvolution(ptfxId, 'smoke', 10.0, true)
     RemoveNamedPtfxAsset(ptfx.name)
-
-    SetModelAsNoLongerNeeded(model)
 end

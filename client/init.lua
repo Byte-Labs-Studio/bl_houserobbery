@@ -1,19 +1,20 @@
+local cache = cache
+local lib = lib
+local target = Framework.target
+
 local utils = require 'client.utils'
 local store = require 'client.module.store'
 local currentHouse = store.currentHouse
 local housePoints = {}
-local target = Framework.target
 
 local function exitHouse()
     local coords = currentHouse.coords
-    local isInside = coords and LocalPlayer.state.inHouse
-
     TriggerServerEvent('bl_houserobbery:server:exitHouse', currentHouse.id)
 
     store.resetCurrentHouse()
     utils.takeObjectControl:disable(true)
 
-    if isInside then
+    if coords and LocalPlayer.state.inHouse then
         DoScreenFadeOut(250)
         Wait(250)
 
@@ -26,6 +27,7 @@ local function exitHouse()
     end
 end
 
+---@param doorCoords vector3
 local function registerExit(doorCoords)
     currentHouse.exitTarget = target.addBoxZone({
         coords = doorCoords.xyz,
@@ -43,38 +45,7 @@ local function registerExit(doorCoords)
     })
 end
 
-local function refreshObjects(objects, skip)
-    if not objects then return end
-
-    for i = 1, #objects do
-        local object = objects[i]
-        local objectId = GetClosestObjectOfType(object.position.x, object.position.y, object.position.z, 3.0, object.model, false, false, false)
-        if skip[tostring(i)] and objectId then
-            SetEntityAsMissionEntity(objectId, true, true)
-            DeleteObject(objectId)
-        else
-            store.addSprite(objectId or utils.spawnLocalObject(object.model, object.position))
-        end
-    end
-end
-
-local function spawnObjects(interior, blackOut, skip)
-    local electricityBox = interior.electricityBox
-    if electricityBox then
-        require'client.module.interior'.handleBlackOut(electricityBox, blackOut)
-    end
-
-    local alarm = interior.alarm
-    if alarm then
-        local object = utils.spawnLocalObject(alarm.model, alarm.position)
-        currentHouse.objects[#currentHouse.objects + 1] = object
-        FreezeEntityPosition(object, true)
-    end
-
-    refreshObjects(interior.objects, skip)
-end
-
-lib.callback.register('bl_houserobbery:client:checkNearbyHouse', function(id)
+lib.callback.register('bl_houserobbery:client:checkNearbyHouse', function()
     local coords = GetEntityCoords(cache.ped)
     local houses = require 'data.houses'
     local house
@@ -125,25 +96,32 @@ function utils.takeObjectControl.onReleased(data)
     data.clicked = false
 end
 
+---@param skipObjects SkipObjects
 RegisterNetEvent('bl_houserobbery:client:syncBlackOut', function(skipObjects)
     store.removeSprites()
-    require'client.module.interior'.blackOutInterior()
-    refreshObjects(currentHouse.interiorObjects, skipObjects)
+    local interior = require'client.module.interior'
+
+    interior.blackOutInterior()
+    interior.refreshObjects(currentHouse.interiorObjects, skipObjects)
+
     local object = store.findModel(currentHouse.electricityBoxModel)
     if not object then return end
 
     target.removeLocalEntity(object)
 end)
 
+---@param objectIndex number
 RegisterNetEvent('bl_houserobbery:client:removeObject', function(objectIndex)
     store.removeSprite(nil, objectIndex)
 end)
 
+---@param id Id
 RegisterNetEvent('bl_houserobbery:client:resetHouse', function(id)
     housePoints[id]:removeSprite()
     housePoints[id] = nil
 end)
 
+---@param data RegisterHouse
 RegisterNetEvent('bl_houserobbery:client:registerHouse', function(data)
     local houseId = data.id
     housePoints[houseId] = exports.bl_sprites:sprite({
@@ -164,6 +142,7 @@ RegisterNetEvent('bl_houserobbery:client:registerHouse', function(data)
     })
 end)
 
+---@param data EnterHouse
 RegisterNetEvent('bl_houserobbery:client:enterHouse', function(data)
     local id, interiorName, blackOut, skipObjects = data.id, data.interiorName, data.blackOut, data.skipObjects
 
@@ -199,9 +178,10 @@ RegisterNetEvent('bl_houserobbery:client:enterHouse', function(data)
             return true
         end
     end, 'Interior load timeout', 10000)
-    FreezeEntityPosition(ped, false)
 
-    spawnObjects(interior, blackOut, skipObjects)
+    FreezeEntityPosition(ped, false)
+    require 'client.module.interior'.spawnObjects(interior, blackOut, skipObjects)
+    require 'client.module.peds'.create(interior.peds)
     registerExit(doorCoords)
     utils.takeObjectControl:disable(false)
     Wait(500)

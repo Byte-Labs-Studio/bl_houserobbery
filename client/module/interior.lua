@@ -1,6 +1,6 @@
 local store = require 'client.module.store'
-local currentHouse = store.currentHouse
 local utils = require 'client.utils'
+local currentHouse = store.currentHouse
 
 local function blackOutInterior()
     local interiorId = currentHouse.interiorId
@@ -11,8 +11,9 @@ local function blackOutInterior()
         SetInteriorRoomTimecycle(interiorId, i, blackOutHash)
     end
 
-    if currentHouse.ghost then
-        require'client.module.ghost'(currentHouse.ghost)
+    local ghost = currentHouse.ghost
+    if ghost then
+        require'client.module.ghost'(ghost)
     end
 
     RefreshInterior(interiorId)
@@ -58,7 +59,40 @@ local function handleBlackOut(electricityBox, blackOut)
     end
 end
 
+local function refreshObjects(objects, skip)
+    if not objects then return end
+
+    for i = 1, #objects do
+        local object = objects[i]
+        local objectId = GetClosestObjectOfType(object.position.x, object.position.y, object.position.z, 3.0, object.model, false, false, false)
+        if skip[tostring(i)] and objectId then
+            SetEntityAsMissionEntity(objectId, true, true)
+            DeleteObject(objectId)
+        else
+            store.addSprite(objectId or utils.spawnLocalObject(object.model, object.position))
+        end
+    end
+end
+
+local function spawnObjects(interiorData, blackOut, skip)
+    local electricityBox = interiorData.electricityBox
+    if electricityBox then
+        handleBlackOut(electricityBox, blackOut)
+    end
+
+    local alarm = interiorData.alarm
+    if alarm then
+        local object = utils.spawnLocalObject(alarm.model, alarm.position)
+        currentHouse.objects[#currentHouse.objects + 1] = object
+        FreezeEntityPosition(object, true)
+    end
+
+    refreshObjects(interiorData.objects, skip)
+end
+
 return {
     blackOutInterior = blackOutInterior,
     handleBlackOut = handleBlackOut,
+    refreshObjects = refreshObjects,
+    spawnObjects = spawnObjects,
 }
