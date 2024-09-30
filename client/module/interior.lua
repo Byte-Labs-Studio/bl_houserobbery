@@ -6,7 +6,7 @@ local function blackOutInterior()
     local interiorId = currentHouse.interiorId
     if not interiorId then return end
 
-    local blackOutHash = `BlackOut`
+    local blackOutHash = `NG_filmic04`
     for i = 1, GetInteriorRoomCount(interiorId) do
         SetInteriorRoomTimecycle(interiorId, i, blackOutHash)
     end
@@ -23,7 +23,6 @@ local function blackOutInterior()
         end
     end, 'Interior load timeout', 10000)
 end
-
 
 local function handleBlackOut(electricityBox, blackOut)
     currentHouse.electricityBoxModel = electricityBox.model

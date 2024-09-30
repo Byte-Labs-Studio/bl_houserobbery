@@ -1,30 +1,24 @@
-local peds = {}
-local store = require 'client.module.store'
+local group = 'HOUSEOWNER'
+local groupHash = joaat(group)
+AddRelationshipGroup(group)
 
----@param pedsData Peds[]
-function peds.create(pedsData)
-    local count = 0
-    for i = 1, #pedsData do
-        local pedData = pedsData[i]
-        local chance = pedData.chance
-        if chance > 0 and math.random(100) <= chance then
-            local coords = pedData.coords
-            local model = pedData.model
+AddStateBagChangeHandler("setHate", nil, function(bagName, key, anim)
+    local entity = GetEntityFromStateBagName(bagName)
+    if entity == 0 then return end
 
-            lib.requestModel(model)
-            local ped = CreatePed(2, model, coords.x, coords.y, coords.z, coords.w, false, false)
-            SetModelAsNoLongerNeeded(model)
-
-            count+=1
-            store.currentHouse.peds[count] = ped
-
-            local anim = pedData.anim
-            lib.requestAnimDict(anim.dict)
-            TaskPlayAnim(ped, anim.dict, anim.name, 1.0, 1.0, -1, 2, 0.0, false, false, false)
-            RemoveAnimDict(anim.dict)
-        end
+    while not HasCollisionLoadedAroundEntity(entity) or not DoesEntityExist(entity) do
+        Wait(250)
     end
 
-end
+    -- lib.requestAnimDict(anim.dict)
+    -- TaskPlayAnim(entity, anim.dict, anim.name, 1.0, 1.0, -1, 2, 0.0, false, false, false)
+    -- RemoveAnimDict(anim.dict)
 
-return peds
+    SetPedRandomProps(entity)
+    SetPedRelationshipGroupHash(entity, groupHash)
+    SetRelationshipBetweenGroups(5, `PLAYER`, groupHash)
+    SetRelationshipBetweenGroups(5, groupHash, `PLAYER`)
+    SetPedCombatAttributes(entity, 3, true)
+    SetPedCombatAttributes(entity, 5, true)
+    SetPedCombatAttributes(entity, 46, true)
+end)

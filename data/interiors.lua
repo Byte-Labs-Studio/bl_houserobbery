@@ -12,7 +12,7 @@ return {
             {
                 chance = 100,
                 model = `a_f_m_tramp_01`,
-                -- weapon = ``,
+                weapon = `WEAPON_PISTOL`,
                 coords = vector4(260.38, -996.58, -99.01, 100.07),
                 anim = {
                     dict = 'switch@franklin@stripclub',

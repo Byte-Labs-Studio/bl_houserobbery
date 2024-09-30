@@ -14,7 +14,7 @@ client_scripts {
 }
 server_scripts {
     '@bl_bridge/imports/server.lua',
-    'server/init.lua'
+    'server/*.lua'
 }
 shared_script '@ox_lib/init.lua'
 

@@ -81,6 +81,7 @@ local function resetCurrentHouse()
         ptfx = {},
         targets = {},
         sprites = {},
+        peds = {},
     }
 end
 

@@ -10,7 +10,6 @@ local housePoints = {}
 local function exitHouse()
     local coords = currentHouse.coords
     TriggerServerEvent('bl_houserobbery:server:exitHouse', currentHouse.id)
-
     store.resetCurrentHouse()
     utils.takeObjectControl:disable(true)
 
@@ -143,7 +142,7 @@ RegisterNetEvent('bl_houserobbery:client:registerHouse', function(data)
 end)
 
 ---@param data EnterHouse
-RegisterNetEvent('bl_houserobbery:client:enterHouse', function(data)
+lib.callback.register('bl_houserobbery:client:enterHouse', function(data)
     local id, interiorName, blackOut, skipObjects = data.id, data.interiorName, data.blackOut, data.skipObjects
 
     local isValid = lib.callback.await('bl_houserobbery:client:validPlayer', nil, id)
@@ -179,13 +178,17 @@ RegisterNetEvent('bl_houserobbery:client:enterHouse', function(data)
         end
     end, 'Interior load timeout', 10000)
 
+    require 'client.module.peds' -- load ped module
+
     FreezeEntityPosition(ped, false)
     require 'client.module.interior'.spawnObjects(interior, blackOut, skipObjects)
-    require 'client.module.peds'.create(interior.peds)
+    -- require 'client.module.peds'.create(interior.peds)
     registerExit(doorCoords)
     utils.takeObjectControl:disable(false)
     Wait(500)
     DoScreenFadeIn(250)
+
+    return true
 end)
 
 AddEventHandler('onResourceStop', function(resourceName)
