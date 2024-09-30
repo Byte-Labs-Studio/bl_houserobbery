@@ -34,6 +34,8 @@ end
 function House:spawnPeds()
     ---@type Peds[]
     local peds = require 'data.interiors'[self.private.interior].peds
+    if not peds then return end
+
     local bl_ecs = exports.bl_ecs
     local id = self.id
 
