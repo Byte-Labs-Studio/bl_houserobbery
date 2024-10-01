@@ -32,7 +32,7 @@ function House:constructor(id, interiorId, houseData)
 end
 
 function House:spawnPeds()
-    ---@type Peds[]
+    ---@type Peds[] | nil
     local peds = require 'data.interiors'[self.private.interior].peds
     if not peds then return end
 
@@ -50,15 +50,10 @@ function House:spawnPeds()
                 coords = coords,
             })
             SetEntityRoutingBucket(ped, id)
-            Entity(ped).state:set('setHate', true, true)
-            CreateThread(function()
-                local anim = pedData.anim
-                while GetPedSpecificTaskType(ped, 0) == 0 or GetPedSpecificTaskType(ped, 0) == 531 do
-                    TaskPlayAnim(ped, anim.dict, anim.name, 1.0, 1.0, -1, 2, 0.0, false, false, false)
-                    Wait(100)
-                end
-                GiveWeaponToPed(ped, pedData.weapon, 100, true, false)
-            end)
+            Entity(ped).state:set('setHate', {
+                anim = pedData.anim,
+                weapon = pedData.weapon,
+            }, true)
         end
     end
 end
