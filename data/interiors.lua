@@ -45,7 +45,8 @@ return {
                 item = "boombox"
             },
             {
-                model = `prop_tv_03`,
+                model = `sm_prop_smug_tv_flat_01`,
+                defaultModel = `prop_tv_03`, -- model that exist on mlo by default, we need this to delete it 
                 position = vec4(256.73, -995.45, -98.86, 45.74),
                 item = "television1"
             },

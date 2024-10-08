@@ -61,7 +61,9 @@ local function resetCurrentHouse()
     end
 
     for _, entityId in ipairs(currentHouse.objects) do
-        target.removeLocalEntity(entityId)
+        target.removeLocalEntity({
+            entity = entityId
+        })
         SetEntityAsMissionEntity(entityId, true, true)
         DeleteObject(entityId)
     end

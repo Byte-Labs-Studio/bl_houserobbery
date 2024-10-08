@@ -1,7 +1,6 @@
 local group = 'HOUSEOWNER'
 local groupHash = joaat(group)
 AddRelationshipGroup(group)
-
 AddStateBagChangeHandler("setHate", nil, function(bagName, key, data)
     if not data then return end
     local entity = GetEntityFromStateBagName(bagName)
