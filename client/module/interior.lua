@@ -58,21 +58,38 @@ local function handleBlackOut(electricityBox, blackOut)
     end
 end
 
+---@param objects Objects[]
+---@param skip table<string, boolean>
 local function refreshObjects(objects, skip)
     if not objects then return end
 
+    local function deleteObj(entity)
+        SetEntityAsMissionEntity(entity, true, true)
+        DeleteObject(entity)
+    end
+
     for i = 1, #objects do
         local object = objects[i]
-        local objectId = GetClosestObjectOfType(object.position.x, object.position.y, object.position.z, 3.0, object.model, false, false, false)
+        local position = object.position
+        local objectId = GetClosestObjectOfType(position.x, position.y, position.z, 3.0, object.defaultModel or object.model, false, false, false)
         if skip[tostring(i)] and objectId then
-            SetEntityAsMissionEntity(objectId, true, true)
-            DeleteObject(objectId)
+            deleteObj(objectId)
         else
-            store.addSprite(objectId or utils.spawnLocalObject(object.model, object.position))
+            if DoesEntityExist(objectId) and GetEntityModel(objectId) == object.defaultModel then
+                deleteObj(objectId)
+
+                ---@diagnostic disable-next-line: cast-local-type
+                objectId = nil
+            end
+
+            store.addSprite(objectId or utils.spawnLocalObject(object.model, position))
         end
     end
 end
 
+
+---@param blackOut boolean
+---@param skip table<string, boolean>
 local function spawnObjects(interiorData, blackOut, skip)
     local electricityBox = interiorData.electricityBox
     if electricityBox then
