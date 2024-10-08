@@ -1,7 +1,6 @@
 local cache = cache
+local Framework = Framework
 local lib = lib
-local target = Framework.target
-
 local utils = require 'client.utils'
 local store = require 'client.module.store'
 local currentHouse = store.currentHouse
@@ -28,7 +27,7 @@ end
 
 ---@param doorCoords vector3
 local function registerExit(doorCoords)
-    currentHouse.exitTarget = target.addBoxZone({
+    currentHouse.exitTarget = Framework.target.addBoxZone({
         coords = doorCoords.xyz,
         size = vector3(2, 2, 2),
         rotation = 90,
@@ -106,7 +105,9 @@ RegisterNetEvent('bl_houserobbery:client:syncBlackOut', function(skipObjects)
     local object = store.findModel(currentHouse.electricityBoxModel)
     if not object then return end
 
-    target.removeLocalEntity(object)
+    Framework.target.removeLocalEntity({
+        entity = object
+    })
 end)
 
 ---@param objectIndex number
