@@ -22,3 +22,10 @@
 --- @field weapon number
 --- @field coords vector4
 --- @field anim {dict: string, name: string}
+
+---@class Objects
+--- @field item string
+--- @field model number
+--- @field position vector4
+--- @field defaultModel? number
+--- @field anim {dict: string, name: string}
