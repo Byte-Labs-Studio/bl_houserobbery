@@ -85,6 +85,8 @@ local function resetCurrentHouse()
         sprites = {},
         peds = {},
     }
+
+    collectgarbage("collect")
 end
 
 return {

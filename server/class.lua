@@ -22,18 +22,42 @@ function House:constructor(id, interiorId, houseData)
     local resetCooldown = require 'data.config'.resetCooldown
     if resetCooldown > 0 then
         SetTimeout(resetCooldown, function()
-            self.cooldown = false
-            CooldownHouses[self.label] = nil
             TriggerClientEvent('bl_houserobbery:client:resetHouse', -1, id)
+            self:destroy()
         end)
     end
 
     ActiveHouses[id] = self
 end
 
+function House:destroy()
+    local id = self.id
+    local label = self.label
+
     for src in pairs(self.private.insidePlayers or {}) do
         TriggerClientEvent('bl_houserobbery:client:exitHouse', src)
     end
+
+    self.blackOut = nil
+    self.private = nil
+    self.coords = nil
+    self.label = nil
+    self.cooldown = nil
+    self.id = nil
+
+    if self.spawnedPeds then
+        for entity in pairs(self.spawnedPeds) do
+           DeleteEntity(entity)
+        end
+    end
+    self.spawnedPeds = nil
+
+    CooldownHouses[label] = nil
+    ActiveHouses[id] = nil
+
+    collectgarbage("collect")
+end
+
 function House:spawnPeds()
     ---@type Peds[] | nil
     local peds = require 'data.interiors'[self.private.interior].peds
@@ -42,6 +66,7 @@ function House:spawnPeds()
     local bl_ecs = exports.bl_ecs
     local id = self.id
 
+    self.spawnedPeds = {}
     for i = 1, #peds do
         local pedData = peds[i]
         local chance = pedData.chance
@@ -52,6 +77,7 @@ function House:spawnPeds()
                 model = model,
                 coords = coords,
             })
+            self.spawnedPeds[ped] = true
             SetEntityRoutingBucket(ped, id)
             Entity(ped).state:set('setHate', {
                 anim = pedData.anim,
@@ -60,6 +86,7 @@ function House:spawnPeds()
         end
     end
 end
+
 
 function House:onPlayerSpawn(source, init)
     if init then
