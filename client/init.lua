@@ -8,6 +8,7 @@ local housePoints = {}
 
 local function exitHouse()
     local coords = currentHouse.coords
+    if not coords then return end
     TriggerServerEvent('bl_houserobbery:server:exitHouse', currentHouse.id)
     store.resetCurrentHouse()
     utils.takeObjectControl:disable(true)
@@ -24,6 +25,7 @@ local function exitHouse()
         DoScreenFadeIn(250)
     end
 end
+RegisterNetEvent('bl_houserobbery:client:exitHouse', exitHouse)
 
 ---@param doorCoords vector3
 local function registerExit(doorCoords)

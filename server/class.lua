@@ -31,6 +31,9 @@ function House:constructor(id, interiorId, houseData)
     ActiveHouses[id] = self
 end
 
+    for src in pairs(self.private.insidePlayers or {}) do
+        TriggerClientEvent('bl_houserobbery:client:exitHouse', src)
+    end
 function House:spawnPeds()
     ---@type Peds[] | nil
     local peds = require 'data.interiors'[self.private.interior].peds
