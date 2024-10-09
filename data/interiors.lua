@@ -31,7 +31,8 @@ return {
         securityCamChance = 0, -- chance that a spot will have a security camera (meaning they need to wear a mask)
         objects = {
             {
-                model = `prop_toaster_02`,
+                model = `prop_toaster_02`, -- model that will spawn
+                -- defaultModel = `prop_toaster_02`, -- model that exist on mlo by default, we need this to delete it, use it if you using diff model
                 position = vec3(266.37, -995.32, -99.04),
                 item = "toaster",
                 anim = {
@@ -45,8 +46,7 @@ return {
                 item = "boombox"
             },
             {
-                model = `sm_prop_smug_tv_flat_01`,
-                defaultModel = `prop_tv_03`, -- model that exist on mlo by default, we need this to delete it 
+                model = `prop_tv_03`,
                 position = vec4(256.73, -995.45, -98.86, 45.74),
                 item = "television1"
             },
