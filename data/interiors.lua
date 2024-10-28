@@ -43,31 +43,37 @@ return {
             },
             {
                 model = `prop_boombox_01`,
+                carry = true,
                 position = vec3(263.36, -994.69, -98.8),
                 item = "boombox"
             },
             {
                 model = `prop_tv_03`,
+                carry = true,
                 position = vec4(256.73, -995.45, -98.86, 45.74),
                 item = "television1"
             },
             {
                 model = `prop_vcr_01`,
+                carry = true,
                 position = vec4(256.67, -995.38, -99.31, 45.74),
                 item = "vcr"
             },
             {
                 model = `prop_tv_flat_03`,
+                carry = true,
                 position = vec3(262.69, -1001.85, -99.29),
                 item = "television2"
             },
             {
                 model = `prop_console_01`,
+                carry = true,
                 position = vec3(263.29, -1001.85, -99.3),
                 item = "console"
             },
             {
                 model = `prop_micro_02`,
+                carry = true,
                 position = vec3(266.47, -944.72, -98.9),
                 item = "microwave"
             },
