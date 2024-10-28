@@ -1,4 +1,4 @@
-local store = require 'client.module.store'
+local store = require 'client.modules.store'
 local currentHouse = store.currentHouse
 local utils = require 'client.utils'
 

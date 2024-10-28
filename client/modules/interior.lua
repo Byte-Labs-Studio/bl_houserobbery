@@ -1,4 +1,4 @@
-local store = require 'client.module.store'
+local store = require 'client.modules.store'
 local utils = require 'client.utils'
 local currentHouse = store.currentHouse
 
@@ -13,7 +13,7 @@ local function blackOutInterior()
 
     local ghost = currentHouse.ghost
     if ghost then
-        require'client.module.ghost'(ghost)
+        require'client.modules.ghost'(ghost)
     end
 
     RefreshInterior(interiorId)
@@ -82,7 +82,7 @@ local function refreshObjects(objects, skip)
                 objectId = nil
             end
 
-            store.addSprite(objectId or utils.spawnLocalObject(object.model, position))
+            store.addSprite(i, objectId or utils.spawnLocalObject(object.model, position))
         end
     end
 end
@@ -101,6 +101,30 @@ local function spawnObjects(interiorData, blackOut, skip)
         local object = utils.spawnLocalObject(alarm.model, alarm.position)
         currentHouse.objects[#currentHouse.objects + 1] = object
         FreezeEntityPosition(object, true)
+
+        -- local handlee
+        -- if not IsNamedRendertargetRegistered('npcphone') then
+        --     RegisterNamedRendertarget('npcphone', false)
+        --     if not IsNamedRendertargetLinked(alarm.model) then
+        --         LinkNamedRendertarget(alarm.model)
+        --     end
+        --     handlee = GetNamedRendertargetRenderId('npcphone')
+        -- end
+
+        -- local txd = CreateRuntimeTxd('prop_phone_proto')
+        -- local dui = CreateDui('https://www.google.com', 1448, 724)
+        -- local handle = GetDuiHandle(dui)
+        -- CreateRuntimeTextureFromDuiHandle(txd, "dui", handle)
+        -- CreateThread(function()
+        --     while true do
+        --         Wait(0)
+        --         SetTextRenderId(handlee) -- set render ID to the render target
+        --         SetScriptGfxDrawOrder(4)
+        --         SetScriptGfxDrawBehindPausemenu(true) -- allow it to draw behind pause menu
+        --         DrawSprite(alarm.model, "dui", 0.5, 0.5, 1.0, 1.0, 0.0, 255, 255, 255, 1.0) -- draw Dui Sprite
+        --         SetTextRenderId(1) -- Reset Render ID (1 is default)
+        --     end
+        -- end)
     end
 
     refreshObjects(interiorData.objects, skip)

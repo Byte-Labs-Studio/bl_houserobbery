@@ -10,11 +10,13 @@ local currentHouse = {
     peds = {},
 }
 
-local function addSprite(entity)
-    local id = #currentHouse.sprites + 1
-    currentHouse.sprites[id] = bl_sprites:spriteOnEntity({
+---comment
+---@param objectIndex number object config index
+---@param entity number
+local function addSprite(objectIndex, entity)
+    currentHouse.sprites[#currentHouse.sprites + 1] = bl_sprites:spriteOnEntity({
         entity = entity,
-        data = id,
+        data = objectIndex,
         distance = 1.5,
         shape = 'circle',
         scale = 0.025,
@@ -61,11 +63,13 @@ local function resetCurrentHouse()
     end
 
     for _, entityId in ipairs(currentHouse.objects) do
-        target.removeLocalEntity({
-            entity = entityId
-        })
-        SetEntityAsMissionEntity(entityId, true, true)
-        DeleteObject(entityId)
+        if DoesEntityExist(entityId) then
+            target.removeLocalEntity({
+                entity = entityId
+            })
+            SetEntityAsMissionEntity(entityId, true, true)
+            DeleteObject(entityId)
+        end
     end
 
     for _, entityId in ipairs(currentHouse.peds) do
@@ -75,16 +79,14 @@ local function resetCurrentHouse()
 
     removeSprites()
 
-    currentHouse = {
-        exitTarget = nil,
-        id = 0,
-        coords = nil,
-        objects = {},
-        ptfx = {},
-        targets = {},
-        sprites = {},
-        peds = {},
-    }
+    currentHouse.exitTarget = nil
+    currentHouse.id = 0
+    currentHouse.coords = nil
+    currentHouse.objects = {}
+    currentHouse.ptfx = {}
+    currentHouse.targets = {}
+    currentHouse.sprites = {}
+    currentHouse.peds = {}
 
     collectgarbage("collect")
 end
