@@ -2,14 +2,15 @@ local cache = cache
 local Framework = Framework
 local lib = lib
 local utils = require 'client.utils'
-local store = require 'client.module.store'
+local store = require 'client.modules.store'
+-- require 'client.modules.record'
 local currentHouse = store.currentHouse
 local housePoints = {}
 
 local function exitHouse()
     local coords = currentHouse.coords
     if not coords then return end
-    TriggerServerEvent('bl_houserobbery:server:exitHouse', currentHouse.id)
+    TriggerServerEvent('bl_houserobbery:server:exitHouse', currentHouse.id, RecordingData)
     store.resetCurrentHouse()
     utils.takeObjectControl:disable(true)
 
@@ -75,8 +76,9 @@ function utils.takeObjectControl.onReleased(data)
         return
     end
     local objectIndex = closestSprite.data
+    local object = require 'data.interiors'[currentHouse.interiorName].objects[objectIndex]
 
-    local anim = require 'data.interiors'[currentHouse.interiorName].objects[objectIndex].anim or {
+    local anim = object and object.anim or {
         dict = 'missmechanic',
         name = 'work2_base'
     }
@@ -88,18 +90,25 @@ function utils.takeObjectControl.onReleased(data)
             duration = 5000
         })
     end
-
+    
     TriggerServerEvent('bl_houserobbery:server:takeObject', {
         objectIndex = objectIndex,
         id = currentHouse.id
     })
+    if object.carry then
+        Wait(200)
+        utils.carryObject({
+            model = object.model,
+            itemName = object.item
+        })
+    end
     data.clicked = false
 end
 
 ---@param skipObjects SkipObjects
 RegisterNetEvent('bl_houserobbery:client:syncBlackOut', function(skipObjects)
     store.removeSprites()
-    local interior = require'client.module.interior'
+    local interior = require'client.modules.interior'
 
     interior.blackOutInterior()
     interior.refreshObjects(currentHouse.interiorObjects, skipObjects)
@@ -148,7 +157,7 @@ end)
 lib.callback.register('bl_houserobbery:client:enterHouse', function(data)
     local id, interiorName, blackOut, skipObjects = data.id, data.interiorName, data.blackOut, data.skipObjects
 
-    local isValid = lib.callback.await('bl_houserobbery:client:validPlayer', nil, id)
+    local isValid = lib.callback.await('bl_houserobbery:server:validPlayer', nil, id)
     assert(isValid, 'Invalid access, how?')
 
     local interior = interiorName and require 'data.interiors'[interiorName]
@@ -181,11 +190,11 @@ lib.callback.register('bl_houserobbery:client:enterHouse', function(data)
         end
     end, 'Interior load timeout', 10000)
 
-    require 'client.module.peds' -- load ped module
+    require 'client.modules.peds' -- load ped module
 
     FreezeEntityPosition(ped, false)
-    require 'client.module.interior'.spawnObjects(interior, blackOut, skipObjects)
-    -- require 'client.module.peds'.create(interior.peds)
+    require 'client.modules.interior'.spawnObjects(interior, blackOut, skipObjects)
+    -- require 'client.modules.peds'.create(interior.peds)
     registerExit(doorCoords)
     utils.takeObjectControl:disable(false)
     Wait(500)

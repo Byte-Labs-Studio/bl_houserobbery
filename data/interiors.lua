@@ -3,8 +3,8 @@ return {
         doorCoords = vec4(266.17, -1007.61, -101.01, 180.0),
         iplPos = vec3(261.4586, -998.8196, -99.00863),
         alarm = {
-            model = `prop_ld_keypad_01`,
-            position = vec4(345.3378, -1011.1, -98.7, 90.0),
+            model = `prop_phone_proto`,
+            position = vector4(264.14, -1002.76, -98.51, 90.0),
             chance = 0,
         },
         ghost = vector4(263.63, -996.22, -99.01, 186.71),
@@ -34,6 +34,7 @@ return {
                 model = `prop_toaster_02`, -- model that will spawn
                 -- defaultModel = `prop_toaster_02`, -- model that exist on mlo by default, we need this to delete it, use it if you using diff model
                 position = vec3(266.37, -995.32, -99.04),
+                carry = true, -- if you want to carry it
                 item = "toaster",
                 anim = {
                     dict = 'missmechanic',
