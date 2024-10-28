@@ -62,6 +62,14 @@ lib.callback.register('bl_houserobbery:client:checkNearbyHouse', function()
 end)
 
 function utils.takeObjectControl.onReleased(data)
+    if LocalPlayer.state.holdingHouseObject then
+        Framework.notify({
+            title = 'You already holding a prop',
+            type = 'error'
+        })
+        return
+    end
+
     if data.clicked then return end
     data.clicked = true
 
