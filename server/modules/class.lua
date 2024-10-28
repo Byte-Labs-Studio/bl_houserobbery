@@ -47,7 +47,7 @@ function House:destroy()
 
     if self.spawnedPeds then
         for entity in pairs(self.spawnedPeds) do
-           DeleteEntity(entity)
+            DeleteEntity(entity)
         end
     end
     self.spawnedPeds = nil
@@ -77,7 +77,7 @@ function House:spawnPeds()
                 model = model,
                 coords = coords,
             })
-            self.spawnedPeds[ped] = true
+            self.spawnedPeds[ped] = pedData.anim
             SetEntityRoutingBucket(ped, id)
             Entity(ped).state:set('setHate', {
                 anim = pedData.anim,
@@ -85,8 +85,41 @@ function House:spawnPeds()
             }, true)
         end
     end
+
+    -- self.record = {
+    --     peds = {}
+    -- }
+    -- CreateThread(function()
+    --     local recordPeds = self.record.peds
+    --     recordPeds.record = {}
+    --     while not self:isHouseEmpty() do
+    --         Wait(200)
+    --         for ped, anim in pairs(self.spawnedPeds) do
+    --             if not recordPeds.model then
+    --                 recordPeds.model = GetEntityModel(ped)
+    --             end
+    --             if GetPedSourceOfDeath(ped) == 0 then
+    --                 recordPeds.record[#recordPeds.record + 1] = {
+    --                     model = GetEntityModel(ped),
+    --                     position = GetEntityCoords(ped),
+    --                     rotation = GetEntityRotation(ped, 2),
+    --                     weapon = GetCurrentPedWeapon(ped),
+    --                 }
+    --             else
+    --                 if not recordPeds.record[#recordPeds.record].dead then
+    --                     recordPeds.record[#recordPeds.record + 1] = {
+    --                         dead = true,
+    --                     }
+    --                 end
+    --             end
+    --         end
+    --     end
+    -- end)
 end
 
+function House:isHouseEmpty()
+    return next(self.private.insidePlayers) == nil
+end
 
 function House:onPlayerSpawn(source, init)
     if init then
@@ -148,6 +181,14 @@ function House:playerExit(source)
     local private = self.private
     if not private.insidePlayers[source] then return end
     private.insidePlayers[source] = nil
+
+    local holdingHouseObject = Player(source).state.holdingHouseObject
+    if holdingHouseObject then
+        SetEntityRoutingBucket(NetworkGetEntityFromNetworkId(holdingHouseObject), private.oldBucket)
+    end
+
     SetPlayerRoutingBucket(source, private.oldBucket)
     Player(source).state.instance = private.oldBucket
+
+    TriggerClientEvent('bl_houserobbery:client:onPlayerExit', source)
 end

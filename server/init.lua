@@ -1,4 +1,6 @@
-lib.callback.register('bl_houserobbery:client:validPlayer', function(source, id)
+-- require 'server.modules.record' -- todo after
+require 'server.modules.class'
+lib.callback.register('bl_houserobbery:server:validPlayer', function(source, id)
     local activeHouse = ActiveHouses[id]
     local isValid = activeHouse and activeHouse:isPlayerInside(source)
     if not isValid then
@@ -7,11 +9,14 @@ lib.callback.register('bl_houserobbery:client:validPlayer', function(source, id)
     return isValid
 end)
 
-RegisterNetEvent('bl_houserobbery:server:exitHouse', function(houseid)
+
+RegisterNetEvent('bl_houserobbery:server:exitHouse', function(houseid, playerRecord)
     local src = source
     local activeHouse = ActiveHouses[houseid]
     if not activeHouse or not activeHouse:isPlayerInside(src) then return end
 
+    -- activeHouse.record = activeHouse.record or {}
+    -- activeHouse.record[('player_%s'):format(src)] = playerRecord
     activeHouse:playerExit(src)
 end)
 
