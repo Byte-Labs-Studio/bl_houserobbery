@@ -10,7 +10,7 @@ lib.callback.register('bl_houserobbery:server:validPlayer', function(source, id)
 end)
 
 
-RegisterNetEvent('bl_houserobbery:server:exitHouse', function(houseid, playerRecord)
+RegisterNetEvent('bl_houserobbery:server:exitHouse', function(houseid)
     local src = source
     local activeHouse = ActiveHouses[houseid]
     if not activeHouse or not activeHouse:isPlayerInside(src) then return end
@@ -18,6 +18,13 @@ RegisterNetEvent('bl_houserobbery:server:exitHouse', function(houseid, playerRec
     -- activeHouse.record = activeHouse.record or {}
     -- activeHouse.record[('player_%s'):format(src)] = playerRecord
     activeHouse:playerExit(src)
+end)
+
+RegisterNetEvent('bl_houserobbery:server:registerCamera', function(data)
+    local activeHouse = ActiveHouses[data.id]
+    if not activeHouse then return end
+
+    activeHouse:registerCamera(data)
 end)
 
 RegisterNetEvent('bl_houserobbery:server:takeObject', function(data)

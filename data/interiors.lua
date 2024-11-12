@@ -8,18 +8,18 @@ return {
             chance = 0,
         },
         ghost = vector4(263.63, -996.22, -99.01, 186.71),
-        peds = {
-            {
-                chance = 100,
-                model = `a_f_m_tramp_01`,
-                weapon = `WEAPON_PISTOL`,
-                coords = vector4(260.38, -996.58, -99.01, 100.07),
-                anim = {
-                    dict = 'switch@franklin@stripclub',
-                    name = '002113_02_fras_15_stripclub_idle'
-                }
-            }
-        },
+        -- peds = {
+        --     {
+        --         chance = 100,
+        --         model = `a_f_m_tramp_01`,
+        --         weapon = `WEAPON_PISTOL`,
+        --         coords = vector4(260.38, -996.58, -99.01, 100.07),
+        --         anim = {
+        --             dict = 'switch@franklin@stripclub',
+        --             name = '002113_02_fras_15_stripclub_idle'
+        --         }
+        --     }
+        -- },
         electricityBox = {
             model = `m23_1_prop_m31_controlpanel_02a`,
             position = vector4(255.92, -998.28, -98.01, 92.08),
@@ -28,7 +28,6 @@ return {
                 name = 'work_base'
             }
         },
-        securityCamChance = 0, -- chance that a spot will have a security camera (meaning they need to wear a mask)
         objects = {
             {
                 model = `prop_toaster_02`, -- model that will spawn
@@ -57,7 +56,7 @@ return {
                 model = `prop_vcr_01`,
                 carry = true,
                 position = vec4(256.67, -995.38, -99.31, 45.74),
-                item = "vcr"
+                item = "c"
             },
             {
                 model = `prop_tv_flat_03`,
@@ -76,6 +75,17 @@ return {
                 carry = true,
                 position = vec3(266.47, -944.72, -98.9),
                 item = "microwave"
+            },
+
+            --cameras
+            {
+                model = `v_serv_securitycam_03`,
+                carry = true,
+                position = vector4(256.24, -994.76, -97.18, 42.11),
+                rotation = vector3(-40.79, 0.0, -138.5977),
+                camera = true,
+                freeze = true,
+                item = "camera"
             },
         },
         spots = {

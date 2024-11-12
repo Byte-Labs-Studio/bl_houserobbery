@@ -1,6 +1,15 @@
 House = lib.class('House')
 CooldownHouses = {}
 ActiveHouses = {}
+local housesCameras = {}
+
+local function getPlayerClosestHouse(coords)
+    for k,v in pairs(ActiveHouses) do
+        if #(v.coords - coords) < 10.0 then
+            return v
+        end
+    end
+end
 
 function House:constructor(id, interiorId, houseData)
     local private = self.private
@@ -168,6 +177,23 @@ function House:takeObject(source, objectIndex)
         TriggerClientEvent('bl_houserobbery:client:removeObject', src, objectIndex)
     end
 end
+
+function House:registerCamera(data)
+    self.cameras = self.cameras or {}
+    local camera = self.cameras
+    camera[#camera + 1] = {
+        coords = data.coords,
+        rotation = data.rot,
+        bucket = self.id
+    }
+end
+
+RegisterCommand('accessCamera', function(source)
+    local closeHouse = getPlayerClosestHouse(GetEntityCoords(GetPlayerPed(source)))
+    if not closeHouse or not next(closeHouse.cameras) then return end
+
+    TriggerClientEvent('bl_houserobbery:client:openCamera', source, closeHouse.cameras)
+end, false)
 
 function House:syncBlackOut()
     local private = self.private

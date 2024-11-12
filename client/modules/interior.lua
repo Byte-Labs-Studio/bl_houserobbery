@@ -77,12 +77,18 @@ local function refreshObjects(objects, skip)
         else
             if DoesEntityExist(objectId) and GetEntityModel(objectId) == object.defaultModel then
                 deleteObj(objectId)
-
                 ---@diagnostic disable-next-line: cast-local-type
                 objectId = nil
             end
 
-            store.addSprite(i, objectId or utils.spawnLocalObject(object.model, position))
+            if object.camera then
+                TriggerServerEvent('bl_houserobbery:server:registerCamera', {
+                    id = currentHouse.id,
+                    coords = position,
+                    rot = object.rotation
+                })
+            end
+            store.addSprite(i, objectId ~= 0 and objectId or utils.spawnLocalObject(object.model, position, object.freeze))
         end
     end
 end

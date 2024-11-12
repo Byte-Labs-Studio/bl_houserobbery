@@ -27,5 +27,8 @@
 --- @field item string
 --- @field model number
 --- @field position vector4
+--- @field rotation? vector4
 --- @field defaultModel? number
+--- @field camera? boolean
+--- @field freeze? boolean
 --- @field anim {dict: string, name: string}

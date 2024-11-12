@@ -6,11 +6,12 @@ local store = require 'client.modules.store'
 -- require 'client.modules.record'
 local currentHouse = store.currentHouse
 local housePoints = {}
+ClearFocus()
 
 local function exitHouse()
     local coords = currentHouse.coords
     if not coords then return end
-    TriggerServerEvent('bl_houserobbery:server:exitHouse', currentHouse.id, RecordingData)
+    TriggerServerEvent('bl_houserobbery:server:exitHouse', currentHouse.id)
     store.resetCurrentHouse()
     utils.takeObjectControl:disable(true)
 
@@ -35,7 +36,7 @@ local function registerExit(doorCoords)
         size = vector3(2, 2, 2),
         rotation = 90,
         distance = 2.0,
-        debug = true,
+        debug = require 'data.config'.debug,
         options = {
             {
                 label = "Exit",
@@ -127,6 +128,55 @@ RegisterNetEvent('bl_houserobbery:client:syncBlackOut', function(skipObjects)
     Framework.target.removeLocalEntity({
         entity = object
     })
+end)
+
+RegisterNetEvent('bl_houserobbery:client:openCamera', function(cameras)
+    local index, camera = next(cameras)
+    local cam = Camera.setCamera(camera)
+    local debug = require 'data.config'.debug
+    local IsControlPressed = IsControlPressed
+    local GetCamRot = GetCamRot
+    local SetCamRot = SetCamRot
+    local Wait = Wait
+    local IsControlJustReleased = IsControlJustReleased
+    while true do
+        Wait(0)
+        if debug then
+            local rotation = GetCamRot(cam, 2)
+            -- Move camera rotation up
+            if IsControlPressed(0, 27) then
+                SetCamRot(cam, rotation.x + 0.2, rotation.y, rotation.z, 2)
+            end
+            -- Move camera rotation down
+            if IsControlPressed(0, 173) then
+                SetCamRot(cam, rotation.x - 0.2, rotation.y, rotation.z, 2)
+            end
+            -- Move camera rotation left
+            if IsControlPressed(0, 174) then
+                SetCamRot(cam, rotation.x, rotation.y, rotation.z + 0.2, 2)
+            end
+            -- Move camera rotation right
+            if IsControlPressed(0, 175) then
+                SetCamRot(cam, rotation.x + 0.2, rotation.y, rotation.z - 0.2, 2)
+            end
+    
+            if IsControlPressed(0, 175) then
+                SetCamRot(cam, rotation.x + 0.2, rotation.y, rotation.z - 0.2, 2)
+            end
+        end
+
+        if IsControlJustReleased(0, 44) then -- Q
+            index, camera = next(cameras, index+1)
+            if not camera then
+                index, camera = next(cameras, 1)
+            end
+            cam = Camera.setCamera(camera, cam)
+        end
+
+        if IsControlJustReleased(0, 26) then
+            Camera.stopCamera(cam)
+        end
+    end
 end)
 
 ---@param objectIndex number

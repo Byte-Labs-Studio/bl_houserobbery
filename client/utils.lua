@@ -2,13 +2,17 @@ local utils = {}
 local state = LocalPlayer.state
 state.holdingHouseObject = false
 
-function utils.spawnLocalObject(model, coords)
+function utils.spawnLocalObject(model, coords, freeze)
     model = lib.requestModel(model)
 
     local object = CreateObjectNoOffset(model, coords.x, coords.y, coords.z, false, false, false)
 
     if coords.w then
         SetEntityHeading(object, coords.w)
+    end
+
+    if freeze then
+        FreezeEntityPosition(freeze, true)
     end
     SetModelAsNoLongerNeeded(model)
     return object
