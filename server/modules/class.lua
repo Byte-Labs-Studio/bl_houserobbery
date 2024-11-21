@@ -1,16 +1,18 @@
+local Framework = Framework
+local lib = lib
 House = lib.class('House')
 CooldownHouses = {}
+---@type Houses[]
 ActiveHouses = {}
-local housesCameras = {}
 
-local function getPlayerClosestHouse(coords)
-    for k,v in pairs(ActiveHouses) do
-        if #(v.coords - coords) < 10.0 then
-            return v
-        end
-    end
-end
 
+exports('getActiveHouses', function()
+    return ActiveHouses
+end)
+---comment
+---@param id Id
+---@param interiorId string
+---@param houseData ConfigHouses
 function House:constructor(id, interiorId, houseData)
     local private = self.private
     self.id = id
@@ -31,7 +33,6 @@ function House:constructor(id, interiorId, houseData)
     local resetCooldown = require 'data.config'.resetCooldown
     if resetCooldown > 0 then
         SetTimeout(resetCooldown, function()
-            TriggerClientEvent('bl_houserobbery:client:resetHouse', -1, id)
             self:destroy()
         end)
     end
@@ -42,6 +43,7 @@ end
 function House:destroy()
     local id = self.id
     local label = self.label
+    TriggerClientEvent('bl_houserobbery:client:resetHouse', -1, id)
 
     for src in pairs(self.private.insidePlayers or {}) do
         TriggerClientEvent('bl_houserobbery:client:exitHouse', src)
@@ -130,6 +132,14 @@ function House:isHouseEmpty()
     return next(self.private.insidePlayers) == nil
 end
 
+function House:getInsidePlayers()
+    local players = {}
+    for k,v in pairs(self.private.insidePlayers) do
+        players[#players+1] = k
+    end
+    return next(players) and players or nil
+end
+
 function House:onPlayerSpawn(source, init)
     if init then
         self:spawnPeds()
@@ -139,6 +149,16 @@ function House:onPlayerSpawn(source, init)
 end
 
 function House:playerEnter(source, init)
+    if not TriggerHouseHook('playerEnter', source, {
+        id = self.id,
+        coords = self.coords,
+        interiorName = self.private.interior,
+        blackOut = self.blackOut,
+        destroy = function()
+            self:destroy()
+        end
+    }) then return end
+
     local id = self.id
     local private = self.private
     private.insidePlayers[source] = true
@@ -147,7 +167,12 @@ function House:playerEnter(source, init)
     Player(source).state.instance = id
 
     lib.callback('bl_houserobbery:client:enterHouse', source, function(success)
-        if not success then return end
+        if not success then
+            if init then
+                self:destroy()
+            end
+            return
+        end
         self:onPlayerSpawn(source, init)
     end, {
         id = id,
@@ -156,12 +181,18 @@ function House:playerEnter(source, init)
         coords = self.coords,
         skipObjects = private.skipObjects
     })
+    return true
 end
 
+---@param source Source
+---@return boolean
 function House:isPlayerInside(source)
     return self.private.insidePlayers[source]
 end
 
+---comment
+---@param source Source
+---@param objectIndex number
 function House:takeObject(source, objectIndex)
     local private = self.private
     local object = require 'data.interiors'[private.interior].objects[objectIndex]
@@ -178,6 +209,8 @@ function House:takeObject(source, objectIndex)
     end
 end
 
+---comment
+---@param data {coords: vector3, rot: vector3}
 function House:registerCamera(data)
     self.cameras = self.cameras or {}
     local camera = self.cameras
@@ -188,13 +221,6 @@ function House:registerCamera(data)
     }
 end
 
-RegisterCommand('accessCamera', function(source)
-    local closeHouse = getPlayerClosestHouse(GetEntityCoords(GetPlayerPed(source)))
-    if not closeHouse or not next(closeHouse.cameras) then return end
-
-    TriggerClientEvent('bl_houserobbery:client:openCamera', source, closeHouse.cameras)
-end, false)
-
 function House:syncBlackOut()
     local private = self.private
 
@@ -204,6 +230,15 @@ function House:syncBlackOut()
 end
 
 function House:playerExit(source)
+    if not TriggerHouseHook('playerExit', source, {
+        id = self.id,
+        coords = self.coords,
+        interiorName = self.private.interior,
+        blackOut = self.blackOut,
+        destroy = function()
+            self:destroy()
+        end
+    }) then return end
     local private = self.private
     if not private.insidePlayers[source] then return end
     private.insidePlayers[source] = nil

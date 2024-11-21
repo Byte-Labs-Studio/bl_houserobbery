@@ -1,5 +1,37 @@
 -- require 'server.modules.record' -- todo after
+local Framework = Framework
+local lib = lib
 require 'server.modules.class'
+local config = require 'data.config'
+
+---comment
+---@param coords vector3
+---@return Houses | nil
+local function getActiveHouseByCoords(coords)
+    for _,v in pairs(ActiveHouses) do
+        if #(v.coords - coords) < 10.0 then
+            return v
+        end
+    end
+end
+exports('getActiveHouseByCoords', getActiveHouseByCoords)
+
+local function getPlayerCurrentHouse(source)
+    for _,v in pairs(ActiveHouses) do
+        if v and v:isPlayerInside(source) then
+            return v
+        end
+    end
+end
+exports('getPlayerCurrentHouse', getPlayerCurrentHouse)
+
+local function getPlayersInHouse(id)
+    return ActiveHouses[id]:getInsidePlayers()
+end
+
+exports('getPlayersInHouse', getPlayersInHouse)
+
+
 lib.callback.register('bl_houserobbery:server:validPlayer', function(source, id)
     local activeHouse = ActiveHouses[id]
     local isValid = activeHouse and activeHouse:isPlayerInside(source)
@@ -8,7 +40,6 @@ lib.callback.register('bl_houserobbery:server:validPlayer', function(source, id)
     end
     return isValid
 end)
-
 
 RegisterNetEvent('bl_houserobbery:server:exitHouse', function(houseid)
     local src = source
@@ -61,7 +92,7 @@ RegisterNetEvent('bl_houserobbery:server:updateHouse', function(data)
     end
 end)
 
-RegisterCommand('enterhouse', function(src)
+local function enterClosestHouse(src)
     local id
     repeat
         id = tonumber(lib.string.random('111111', 8))
@@ -77,8 +108,27 @@ RegisterCommand('enterhouse', function(src)
         return
     end
 
-    local interiorId = houseData.interior or require 'data.config'.defaultInterior
+    local interiorId = houseData.interior or config.defaultInterior
     local house = House:new(id, interiorId, houseData)
 
     house:playerEnter(src, true)
-end, false)
+end
+exports('enterClosestHouse', enterClosestHouse)
+
+local core = Framework.core
+core.RegisterUsableItem(config.lockPickItem, function(source)
+    enterClosestHouse(source)
+end)
+
+local breachingData = config.cameraBreaching
+core.RegisterUsableItem(breachingData.item, function(source)
+    local player = core.GetPlayer(source)
+    local job = player?.job
+    if not job then return error(('Player %s has no job'):format(source)) end
+    if not breachingData.groups[player.job.name] or breachingData.groups[player.job.name] > job.grade.name then return end
+
+    local closeHouse = getActiveHouseByCoords(GetEntityCoords(GetPlayerPed(source)))
+    if not closeHouse or not next(closeHouse.cameras) then return end
+
+    TriggerClientEvent('bl_houserobbery:client:openCamera', source, closeHouse.cameras)
+end)
