@@ -8,7 +8,7 @@ local currentHouse = store.currentHouse
 local housePoints = {}
 ClearFocus()
 
-local function exitHouse()
+local function exitHouse(restart)
     local coords = currentHouse.coords
     if not coords then return end
     TriggerServerEvent('bl_houserobbery:server:exitHouse', currentHouse.id)
@@ -16,15 +16,19 @@ local function exitHouse()
     utils.takeObjectControl:disable(true)
 
     if coords and LocalPlayer.state.inHouse then
-        DoScreenFadeOut(250)
-        Wait(250)
+        if not restart then
+            DoScreenFadeOut(250)
+            Wait(250)
+        end
 
         SetEntityCoords(cache.ped, coords.x, coords.y, coords.z, false, false, false, false)
 
         LocalPlayer.state:set('inHouse', false, true)
 
-        Wait(250)
-        DoScreenFadeIn(250)
+        if not restart then
+            Wait(250)
+            DoScreenFadeIn(250)
+        end
     end
 end
 RegisterNetEvent('bl_houserobbery:client:exitHouse', exitHouse)
@@ -47,6 +51,8 @@ local function registerExit(doorCoords)
     })
 end
 
+---Houses
+---@return ConfigHouses
 lib.callback.register('bl_houserobbery:client:checkNearbyHouse', function()
     local coords = GetEntityCoords(cache.ped)
     local houses = require 'data.houses'
@@ -130,55 +136,6 @@ RegisterNetEvent('bl_houserobbery:client:syncBlackOut', function(skipObjects)
     })
 end)
 
-RegisterNetEvent('bl_houserobbery:client:openCamera', function(cameras)
-    local index, camera = next(cameras)
-    local cam = Camera.setCamera(camera)
-    local debug = require 'data.config'.debug
-    local IsControlPressed = IsControlPressed
-    local GetCamRot = GetCamRot
-    local SetCamRot = SetCamRot
-    local Wait = Wait
-    local IsControlJustReleased = IsControlJustReleased
-    while true do
-        Wait(0)
-        if debug then
-            local rotation = GetCamRot(cam, 2)
-            -- Move camera rotation up
-            if IsControlPressed(0, 27) then
-                SetCamRot(cam, rotation.x + 0.2, rotation.y, rotation.z, 2)
-            end
-            -- Move camera rotation down
-            if IsControlPressed(0, 173) then
-                SetCamRot(cam, rotation.x - 0.2, rotation.y, rotation.z, 2)
-            end
-            -- Move camera rotation left
-            if IsControlPressed(0, 174) then
-                SetCamRot(cam, rotation.x, rotation.y, rotation.z + 0.2, 2)
-            end
-            -- Move camera rotation right
-            if IsControlPressed(0, 175) then
-                SetCamRot(cam, rotation.x + 0.2, rotation.y, rotation.z - 0.2, 2)
-            end
-    
-            if IsControlPressed(0, 175) then
-                SetCamRot(cam, rotation.x + 0.2, rotation.y, rotation.z - 0.2, 2)
-            end
-        end
-
-        if IsControlJustReleased(0, 44) then -- Q
-            index, camera = next(cameras, index+1)
-            if not camera then
-                index, camera = next(cameras, 1)
-            end
-            cam = Camera.setCamera(camera, cam)
-        end
-
-        if IsControlJustReleased(0, 26) then
-            Camera.stopCamera(cam)
-        end
-    end
-end)
-
 ---@param objectIndex number
 RegisterNetEvent('bl_houserobbery:client:removeObject', function(objectIndex)
     store.removeSprite(nil, objectIndex)
@@ -229,41 +186,48 @@ lib.callback.register('bl_houserobbery:client:enterHouse', function(data)
     DoScreenFadeOut(250)
     Wait(250)
 
-    SetEntityCoords(ped, doorCoords.x, doorCoords.y, doorCoords.z, false, false, false, false)
-    SetEntityHeading(ped, doorCoords.w)
+    local success, result = pcall(function()
+        SetEntityCoords(ped, doorCoords.x, doorCoords.y, doorCoords.z, false, false, false, false)
+        SetEntityHeading(ped, doorCoords.w)
+        FreezeEntityPosition(ped, true)
+        local interiorId = GetInteriorAtCoords(doorCoords.x, doorCoords.y, doorCoords.z)
 
-    FreezeEntityPosition(ped, true)
-    local interiorId = GetInteriorAtCoords(doorCoords.x, doorCoords.y, doorCoords.z)
+        currentHouse.interiorId = interiorId
+        currentHouse.interiorObjects = interior.objects
+        currentHouse.interiorName = interiorName
+        currentHouse.id = id
+        currentHouse.coords = data.coords
+        currentHouse.ghost = interior.ghost
 
-    currentHouse.interiorId = interiorId
-    currentHouse.interiorObjects = interior.objects
-    currentHouse.interiorName = interiorName
-    currentHouse.id = id
-    currentHouse.coords = data.coords
-    currentHouse.ghost = interior.ghost
+        lib.waitFor(function()
+            if IsInteriorReady(interiorId) then
+                return true
+            end
+        end, 'Interior load timeout', 10000)
 
-    lib.waitFor(function()
-        if IsInteriorReady(interiorId) then
-            return true
-        end
-    end, 'Interior load timeout', 10000)
-
-    require 'client.modules.peds' -- load ped module
-
-    FreezeEntityPosition(ped, false)
-    require 'client.modules.interior'.spawnObjects(interior, blackOut, skipObjects)
-    -- require 'client.modules.peds'.create(interior.peds)
-    registerExit(doorCoords)
-    utils.takeObjectControl:disable(false)
-    Wait(500)
+        require 'client.modules.peds' -- load ped module
+        FreezeEntityPosition(ped, false)
+        require 'client.modules.interior'.spawnObjects(interior, blackOut, skipObjects)
+        -- require 'client.modules.peds'.create(interior.peds)
+        registerExit(doorCoords)
+        utils.takeObjectControl:disable(false)
+        Wait(500)
+    end)
+    if not success then
+        Framework.notify({
+            title = 'There was error while entering the house, check f8',
+            type = 'error'
+        })
+        lib.print.error(result)
+        exitHouse()
+    end
     DoScreenFadeIn(250)
-
-    return true
+    return success
 end)
 
 AddEventHandler('onResourceStop', function(resourceName)
     if (GetCurrentResourceName() ~= resourceName) then
       return
     end
-    exitHouse()
+    exitHouse(true)
 end)

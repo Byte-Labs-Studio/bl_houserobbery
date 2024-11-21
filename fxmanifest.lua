@@ -18,7 +18,6 @@ server_scripts {
 }
 shared_script '@ox_lib/init.lua'
 
-
 files {
     'data/**',
     'client/**/*',

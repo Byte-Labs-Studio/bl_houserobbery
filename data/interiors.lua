@@ -31,7 +31,7 @@ return {
         objects = {
             {
                 model = `prop_toaster_02`, -- model that will spawn
-                -- defaultModel = `prop_toaster_02`, -- model that exist on mlo by default, we need this to delete it, use it if you using diff model
+                -- defaultModel = `prop_toaster_02`, -- model that exist on mlo by default, we need this to delete it, use it if mlo has diff model than default
                 position = vec3(266.37, -995.32, -99.04),
                 carry = true, -- if you want to carry it
                 item = "toaster",

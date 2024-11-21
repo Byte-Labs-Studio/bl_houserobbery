@@ -35,7 +35,7 @@ function utils.carryObject(data) -- todo: slow person steps depend on item weigh
 
         while DoesEntityExist(object) do
             local found = false
-            for _, v in pairs(inventory.playerItems()) do 
+            for _, v in pairs(inventory.playerItems()) do
                 if itemName == v.name and v.amount > 0 then
                     found = true
                 end

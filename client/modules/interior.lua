@@ -116,6 +116,38 @@ local function spawnObjects(interiorData, blackOut, skip)
         --     end
         --     handlee = GetNamedRendertargetRenderId('npcphone')
         -- end
+        -- local dui = lib.dui:new({
+        --     url = 'https://www.google.com',
+        --     width = 1448,
+        --     height = 724,
+        --     debug = true
+        -- })
+
+        -- print(dui.duiHandle)
+        -- print(dui.duiObject)
+        -- print(dui.runtimeTxd)
+        -- print(dui.txdObject)
+        -- print(dui.dictName)
+        -- print(dui.txtName)
+        -- AddReplaceTexture('prop_phone_proto', 'npcphone', dui.dictName, dui.txtName)
+        -- CreateThread(function()
+        --     while true do
+        --         Wait(0)
+        --         SetTextRenderId(handlee)                                                        -- set render ID to the render target
+        --         SetScriptGfxDrawOrder(4)
+        --         SetScriptGfxDrawBehindPausemenu(true)                                           -- allow it to draw behind pause menu
+        --         DrawSprite(alarm.model, dui.txtName, 0.5, 0.5, 1.0, 1.0, 0.0, 255, 255, 255, 1.0)     -- draw Dui Sprite
+        --         SetTextRenderId(1)                                                              -- Reset Render ID (1 is default)
+        --     end
+        -- end)
+        -- local handlee
+        -- if not IsNamedRendertargetRegistered('npcphone') then
+        --     RegisterNamedRendertarget('npcphone', false)
+        --     if not IsNamedRendertargetLinked(alarm.model) then
+        --         LinkNamedRendertarget(alarm.model)
+        --     end
+        --     handlee = GetNamedRendertargetRenderId('npcphone')
+        -- end
 
         -- local txd = CreateRuntimeTxd('prop_phone_proto')
         -- local dui = CreateDui('https://www.google.com', 1448, 724)
