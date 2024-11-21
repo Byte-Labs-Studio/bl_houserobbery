@@ -6,6 +6,14 @@ return {
         dict = 'missmechanic',
         name = 'work2_base'
     },
+    cameraBreaching = {
+        item = 'breachingdevice',
+        groups = {
+            police = 9
+        }
+    },
+    lockPickItem = 'lockpick',
+    
     carryAnimation = {
         dict = 'anim@heists@box_carry@',
         name = 'idle'
